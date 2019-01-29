@@ -12,19 +12,19 @@ import { VIEWER_SUBSCRIPTIONS, STARS } from './constants';
 
 const isWatch = viewerSubscription => viewerSubscription === VIEWER_SUBSCRIPTIONS.SUBSCRIBED;
 
-const readFragment = (client, id, fragment) => client.readFragment({ id, fragment });
+const readFragment = (cache, id, fragment) => cache.readFragment({ id, fragment });
 
-const writeFragment = (client, id, fragment, data) => {
-  client.writeFragment({ id, fragment, data });
+const writeFragment = (cache, id, fragment, data) => {
+  cache.writeFragment({ id, fragment, data });
 };
 
-const updateStarCount = (client, mutationResult) => {
+const updateStarCount = (cache, mutationResult) => {
   const { ADD_STAR, REMOVE_STAR } = STARS;
 
   const mutationType = mutationResult.data.hasOwnProperty(ADD_STAR) ? ADD_STAR : REMOVE_STAR;
   const { data: { [mutationType]: { starrable: { id } } } } = mutationResult;
 
-  const repository = readFragment(client, `Repository:${id}`, REPOSITORY_FRAGMENT);
+  const repository = readFragment(cache, `Repository:${id}`, REPOSITORY_FRAGMENT);
 
   const { totalCount } = repository.stargazers;
   const stargazersTotalCount = mutationType === ADD_STAR ? totalCount + 1 : totalCount - 1;
@@ -37,12 +37,12 @@ const updateStarCount = (client, mutationResult) => {
     }
   };
 
-  writeFragment(client, `Repository:${id}`, REPOSITORY_FRAGMENT, data);
+  writeFragment(cache, `Repository:${id}`, REPOSITORY_FRAGMENT, data);
 };
 
-const updateWatcherCount = (client, mutationResult) => {
+const updateWatcherCount = (cache, mutationResult) => {
   const { data: { updateSubscription: { subscribable: { id, viewerSubscription } } } } = mutationResult;
-  const repository = readFragment(client, `Repository:${id}`, REPOSITORY_FRAGMENT);
+  const repository = readFragment(cache, `Repository:${id}`, REPOSITORY_FRAGMENT);
 
   const { totalCount } = repository.watchers;
   const watchersTotalCount = isWatch(viewerSubscription) ? totalCount + 1 : totalCount - 1;
@@ -55,7 +55,7 @@ const updateWatcherCount = (client, mutationResult) => {
     }
   };
 
-  writeFragment(client, `Repository:${id}`, REPOSITORY_FRAGMENT, data);
+  writeFragment(cache, `Repository:${id}`, REPOSITORY_FRAGMENT, data);
 };
 
 export const Repository = ({
