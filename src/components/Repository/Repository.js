@@ -48,10 +48,10 @@ const updateWatcherCount = (cache, mutationResult) => {
   const watchersTotalCount = isWatch(viewerSubscription) ? totalCount + 1 : totalCount - 1;
 
   const data = {
-  ...repository,
-      watchers: {
-    ...repository.watchers,
-        totalCount: watchersTotalCount
+    ...repository,
+    watchers: {
+      ...repository.watchers,
+      totalCount: watchersTotalCount
     }
   };
 
