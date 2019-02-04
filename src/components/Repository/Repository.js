@@ -58,6 +58,30 @@ const updateWatcherCount = (cache, mutationResult) => {
   writeFragment(cache, `Repository:${id}`, REPOSITORY_FRAGMENT, data);
 };
 
+const updateStarCountOptimisticResponse = (id, viewerHasStarred) => {
+  return !viewerHasStarred ?
+    {
+      addStar: {
+        __typename: 'Mutation',
+        starrable: {
+          __typename: 'Repository',
+          id,
+          viewerHasStarred
+        }
+      }
+    } :
+    {
+      removeStar: {
+        __typename: 'Mutation',
+        starrable: {
+          __typename: 'Repository',
+          id,
+          viewerHasStarred
+        }
+      }
+    };
+};
+
 const Repository = ({
   descriptionHTML,
   id,
@@ -84,6 +108,18 @@ const Repository = ({
               ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
               : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
           }}
+          optimisticResponse={{
+            updateSubscription: {
+              __typename: 'Mutation',
+              subscribable: {
+                __typename: 'Repository',
+                id,
+                viewerSubscription: isWatch(viewerSubscription)
+                  ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
+                  : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
+              }
+            }
+          }}
           update={updateWatcherCount}
         >
           {(updateSubscription, { data, loading, error }) => (
@@ -95,37 +131,21 @@ const Repository = ({
             </button>
           )}
         </Mutation>
-        {!viewerHasStarred ? (
-          <Mutation
-            mutation={STAR_REPOSITORY}
-            variables={{ id }}
-            update={updateStarCount}
-          >
-            {(addStar, { data, loading, error }) => (
-              <button
-                type="button"
-                onClick={addStar}
-              >
-                {stargazers.totalCount} Star
-              </button>
-            )}
-          </Mutation>
-        ) : (
-          <Mutation
-            mutation={UNSTAR_REPOSITORY}
-            variables={{ id }}
-            update={updateStarCount}
-          >
-            {(removeStar, { data, loading, error }) => (
-              <button
-                type="button"
-                onClick={removeStar}
-              >
-                {stargazers.totalCount} Star
-              </button>
-            )}
-          </Mutation>
-        )}
+        <Mutation
+          mutation={!viewerHasStarred ? STAR_REPOSITORY : UNSTAR_REPOSITORY}
+          variables={{ id }}
+          optimisticResponse={updateStarCountOptimisticResponse(id, viewerHasStarred)}
+          update={updateStarCount}
+        >
+          {(updateStar, { data, loading, error }) => (
+            <button
+              type="button"
+              onClick={updateStar}
+            >
+              {stargazers.totalCount} Star
+            </button>
+          )}
+        </Mutation>
       </div>
       <div className="repository__description">
         <div className="repository__description-info"
