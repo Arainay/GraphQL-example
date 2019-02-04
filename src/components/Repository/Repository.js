@@ -8,7 +8,7 @@ import {
 } from '../Repositories/operations/mutations';
 import { REPOSITORY_FRAGMENT } from './operations/fragments';
 
-import { VIEWER_SUBSCRIPTIONS, STARS } from '../Repositories/constants';
+import { VIEWER_SUBSCRIPTIONS, STARS } from './constants';
 
 const isWatch = viewerSubscription => viewerSubscription === VIEWER_SUBSCRIPTIONS.SUBSCRIBED;
 
