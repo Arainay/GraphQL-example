@@ -3,7 +3,7 @@ import { Query } from 'react-apollo';
 
 import { GET_REPOSITORIES_OF_CURRENT_USER } from './operations/queries';
 
-import { Repository } from './Repository';
+import Repository from '../Repository/';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 

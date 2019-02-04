@@ -5,10 +5,10 @@ import {
   STAR_REPOSITORY,
   UNSTAR_REPOSITORY,
   WATCH_REPOSITORY
-} from './operations/mutations';
+} from '../Repositories/operations/mutations';
 import { REPOSITORY_FRAGMENT } from './operations/fragments';
 
-import { VIEWER_SUBSCRIPTIONS, STARS } from './constants';
+import { VIEWER_SUBSCRIPTIONS, STARS } from '../Repositories/constants';
 
 const isWatch = viewerSubscription => viewerSubscription === VIEWER_SUBSCRIPTIONS.SUBSCRIBED;
 
@@ -58,7 +58,7 @@ const updateWatcherCount = (cache, mutationResult) => {
   writeFragment(cache, `Repository:${id}`, REPOSITORY_FRAGMENT, data);
 };
 
-export const Repository = ({
+const Repository = ({
   descriptionHTML,
   id,
   name,
@@ -146,3 +146,5 @@ export const Repository = ({
     </div>
   );
 };
+
+export default Repository;

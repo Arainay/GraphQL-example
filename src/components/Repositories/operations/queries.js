@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-import { REPOSITORY_FRAGMENT } from './fragments';
+import { REPOSITORY_FRAGMENT } from '../../Repository/operations/fragments';
 import { USER_FRAGMENT } from '../../Profile/operations/fragments';
 
 export const GET_REPOSITORIES_OF_CURRENT_USER = gql`
