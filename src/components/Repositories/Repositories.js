@@ -6,6 +6,28 @@ import { GET_REPOSITORIES_OF_CURRENT_USER } from './operations/queries';
 import Repository from '../Repository/';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
+import FetchMore from '../FetchMore';
+
+const updateQuery = (prevResult, { fetchMoreResult }) => {
+  if (!fetchMoreResult) {
+    return prevResult;
+  }
+
+  return {
+    ...prevResult,
+    viewer: {
+      ...prevResult.viewer,
+      repositories: {
+        ...prevResult.viewer.repositories,
+        ...fetchMoreResult.viewer.repositories,
+        edges: [
+          ...prevResult.viewer.repositories.edges,
+          ...fetchMoreResult.viewer.repositories.edges,
+        ]
+      }
+    }
+  };
+};
 
 const Repositories = () => (
   <Query
@@ -35,45 +57,17 @@ const Repositories = () => (
             {repositories.edges.map(({ node }) => (
               <Repository {...node} key={node.id}/>
             ))}
-            {loading ? (
-              <Loading/>
-            ) :
-            (
-              repositories.pageInfo.hasNextPage && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    fetchMore({
-                      variables: {
-                        cursor: repositories.pageInfo.endCursor
-                      },
-                      updateQuery: (prevResult, { fetchMoreResult }) => {
-                        if (!fetchMoreResult) {
-                          return prevResult;
-                        }
-
-                        return {
-                          ...prevResult,
-                          viewer: {
-                            ...prevResult.viewer,
-                            repositories: {
-                              ...prevResult.viewer.repositories,
-                              ...fetchMoreResult.viewer.repositories,
-                              edges: [
-                                ...prevResult.viewer.repositories.edges,
-                                ...fetchMoreResult.viewer.repositories.edges
-                              ]
-                            }
-                          }
-                        };
-                      }
-                    })
-                  }}
-                >
-                  More Repositories
-                </button>
-              )
-            )}
+            {<FetchMore
+                hasNextPage={repositories.pageInfo.hasNextPage}
+                fetchMore={fetchMore}
+                variables={{
+                  cursor: repositories.pageInfo.endCursor
+                }}
+                updateQuery={updateQuery}
+                loading={loading}
+              >
+                More Repositories
+              </FetchMore>}
           </div>
         </Fragment>
       );
