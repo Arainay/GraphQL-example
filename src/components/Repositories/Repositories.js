@@ -1,52 +1,48 @@
 import React, { Fragment } from 'react';
 import { Query } from 'react-apollo';
 
-import { GET_REPOSITORIES_OF_CURRENT_USER } from './operations/queries';
-
 import Repository from '../Repository/';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 import FetchMore from '../FetchMore';
 
-const updateQuery = (prevResult, { fetchMoreResult }) => {
+const updateQuery = (entry) => (prevResult, { fetchMoreResult }) => {
   if (!fetchMoreResult) {
     return prevResult;
   }
 
   return {
     ...prevResult,
-    viewer: {
-      ...prevResult.viewer,
+    [entry]: {
+      ...prevResult[entry],
       repositories: {
-        ...prevResult.viewer.repositories,
-        ...fetchMoreResult.viewer.repositories,
+        ...prevResult[entry].repositories,
+        ...fetchMoreResult[entry].repositories,
         edges: [
-          ...prevResult.viewer.repositories.edges,
-          ...fetchMoreResult.viewer.repositories.edges,
+          ...prevResult[entry].repositories.edges,
+          ...fetchMoreResult[entry].repositories.edges,
         ]
       }
     }
   };
 };
 
-const Repositories = () => (
+const Repositories = ({ query, variables, entry }) => (
   <Query
-    query={GET_REPOSITORIES_OF_CURRENT_USER}
+    query={query}
     notifyOnNetworkStatusChange
-    variables={{ repositoryCount: 3 }}
+    variables={variables}
   >
     {({ data, loading, error, fetchMore }) => {
       if (error) {
         return <ErrorMessage message={error.message}/>;
       }
 
-      const { viewer } = data;
-
-      if (loading && !viewer) {
+      if (loading && !data[entry]) {
         return <Loading/>;
       }
 
-      const { login, name, repositories } = viewer;
+      const { login, name, repositories } = data[entry];
 
       return (
         <Fragment>
@@ -63,7 +59,7 @@ const Repositories = () => (
                 variables={{
                   cursor: repositories.pageInfo.endCursor
                 }}
-                updateQuery={updateQuery}
+                updateQuery={updateQuery(entry)}
                 loading={loading}
               >
                 More Repositories

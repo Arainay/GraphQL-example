@@ -1,12 +1,16 @@
 import gql from 'graphql-tag';
 
 import { REPOSITORY_FRAGMENT } from '../../Repository/operations/fragments';
-import { USER_FRAGMENT } from '../../Profile/operations/fragments';
+import { ORGANIZATION_FRAGMENT } from './fragments';
 
-export const GET_REPOSITORIES_OF_CURRENT_USER = gql`
-  query UserAndRepositoris($repositoryCount: Int = 5, $cursor: String) {
-    viewer {
-      ...user
+export const GET_REPOSITORIES_OF_ORGANIZATION = gql`
+  query OrganizationRepositories(
+    $organizationName: String!,
+    $repositoryCount: Int = 5,
+    $cursor: String
+  ) {
+    organization(login: $organizationName) {
+      ...organization
       repositories(
         first: $repositoryCount
         orderBy: { direction: DESC, field: STARGAZERS }
@@ -26,5 +30,5 @@ export const GET_REPOSITORIES_OF_CURRENT_USER = gql`
   }
   
   ${REPOSITORY_FRAGMENT}
-  ${USER_FRAGMENT}
+  ${ORGANIZATION_FRAGMENT}
 `;
