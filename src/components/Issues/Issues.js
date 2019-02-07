@@ -19,47 +19,39 @@ const Issues = ({ repositoryOwner, repositoryName }) => {
     setIssueState(type);
   };
 
-  if (!isShow(issueState)) {
-    return <IssuesButtons onClick={handleClick} issueState={issueState}/>;
-  }
-
   return (
     <Fragment>
       <IssuesButtons onClick={handleClick} issueState={issueState}/>
-      <Query
-        query={GET_ISSUES_OF_REPOSITORY}
-        variables={{ repositoryOwner, repositoryName }}
-      >
-        {({ data, loading, error }) => {
-          if (error) {
-            return <ErrorMessage message={error.message}/>
-          }
-
-          const { repository } = data;
-
-          if (loading && !repository) {
-            return <Loading/>
-          }
-
-          const filteredRepository = {
-            issues: {
-              edges: repository.issues.edges.filter(item => item.node.state === issueState)
+      {isShow(issueState) && (
+        <Query
+          query={GET_ISSUES_OF_REPOSITORY}
+          variables={{ repositoryOwner, repositoryName, issueState }}
+        >
+          {({ data, loading, error }) => {
+            if (error) {
+              return <ErrorMessage message={error.message}/>
             }
-          };
 
-          if (filteredRepository.issues.edges.length === 0) {
-            return <h3>No issues</h3>
-          }
+            const { repository } = data;
 
-          return (
-            <div className="issues">
-              {filteredRepository.issues.edges.map(({ node }) => (
-                <Issue {...node} key={node.id}/>
-              ))}
-            </div>
-          );
-        }}
-      </Query>
+            if (loading && !repository) {
+              return <Loading/>
+            }
+
+            if (repository.issues.edges.length === 0) {
+              return <h3>No issues</h3>
+            }
+
+            return (
+              <div className="issues">
+                {repository.issues.edges.map(({ node }) => (
+                  <Issue {...node} key={node.id}/>
+                ))}
+              </div>
+            );
+          }}
+        </Query>
+      )}
     </Fragment>
   );
 };
