@@ -95,79 +95,77 @@ const Repository = ({
   viewerHasStarred,
   viewerSubscription,
   watchers
-}) => {
-  return (
-    <div className="repositories__item repository">
-      <div className="repository__title">
-        <h2>
-          <a href={url}>{name}</a>
-        </h2>
-        <Mutation
-          mutation={WATCH_REPOSITORY}
-          variables={{
-            id,
-            viewerSubscription: isWatch(viewerSubscription)
-              ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
-              : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
-          }}
-          optimisticResponse={{
-            updateSubscription: {
-              __typename: 'Mutation',
-              subscribable: {
-                __typename: 'Repository',
-                id,
-                viewerSubscription: isWatch(viewerSubscription)
-                  ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
-                  : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
-              }
+}) => (
+  <div className="repositories__item repository">
+    <div className="repository__title">
+      <h2>
+        <a href={url}>{name}</a>
+      </h2>
+      <Mutation
+        mutation={WATCH_REPOSITORY}
+        variables={{
+          id,
+          viewerSubscription: isWatch(viewerSubscription)
+            ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
+            : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
+        }}
+        optimisticResponse={{
+          updateSubscription: {
+            __typename: 'Mutation',
+            subscribable: {
+              __typename: 'Repository',
+              id,
+              viewerSubscription: isWatch(viewerSubscription)
+                ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
+                : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
             }
-          }}
-          update={updateWatcherCount}
-        >
-          {(updateSubscription, { data, loading, error }) => (
-            <button
-              type="button"
-              onClick={updateSubscription}
-            >
-              {watchers.totalCount} {isWatch(viewerSubscription) ? 'Unwatch' : 'Watch'}
-            </button>
+          }
+        }}
+        update={updateWatcherCount}
+      >
+        {(updateSubscription, { data, loading, error }) => (
+          <button
+            type="button"
+            onClick={updateSubscription}
+          >
+            {watchers.totalCount} {isWatch(viewerSubscription) ? 'Unwatch' : 'Watch'}
+          </button>
+        )}
+      </Mutation>
+      <Mutation
+        mutation={!viewerHasStarred ? STAR_REPOSITORY : UNSTAR_REPOSITORY}
+        variables={{ id }}
+        optimisticResponse={updateStarCountOptimisticResponse(id, viewerHasStarred)}
+        update={updateStarCount}
+      >
+        {(updateStar, { data, loading, error }) => (
+          <button
+            type="button"
+            onClick={updateStar}
+          >
+            {stargazers.totalCount} Star
+          </button>
+        )}
+      </Mutation>
+    </div>
+    <div className="repository__description">
+      <div className="repository__description-info"
+           dangerouslySetInnerHTML={{ __html: descriptionHTML }}/>
+      <div className="repository__description-details">
+        <div className="repository__description-details-item">
+          {primaryLanguage && (
+            <span>Language: {primaryLanguage.name}</span>
           )}
-        </Mutation>
-        <Mutation
-          mutation={!viewerHasStarred ? STAR_REPOSITORY : UNSTAR_REPOSITORY}
-          variables={{ id }}
-          optimisticResponse={updateStarCountOptimisticResponse(id, viewerHasStarred)}
-          update={updateStarCount}
-        >
-          {(updateStar, { data, loading, error }) => (
-            <button
-              type="button"
-              onClick={updateStar}
-            >
-              {stargazers.totalCount} Star
-            </button>
+        </div>
+        <div className="repository__description-details-item">
+          {owner && (
+            <span>Owner: <a href={owner.url}>{owner.login}</a></span>
           )}
-        </Mutation>
-      </div>
-      <div className="repository__description">
-        <div className="repository__description-info"
-             dangerouslySetInnerHTML={{ __html: descriptionHTML }}/>
-        <div className="repository__description-details">
-          <div className="repository__description-details-item">
-            {primaryLanguage && (
-              <span>Language: {primaryLanguage.name}</span>
-            )}
-          </div>
-          <div className="repository__description-details-item">
-            {owner && (
-              <span>Owner: <a href={owner.url}>{owner.login}</a></span>
-            )}
-          </div>
         </div>
       </div>
-      <Issues repositoryOwner={owner.login} repositoryName={name}/>
     </div>
-  );
-};
+    <Issues repositoryOwner={owner.login} repositoryName={name}/>
+  </div>
+);
 
 export default Repository;

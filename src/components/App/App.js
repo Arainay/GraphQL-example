@@ -19,24 +19,22 @@ const ProfileSuspenseContainer = () => (
   </Suspense>
 );
 
-const App = () => {
-  return (
-    <BrowserRouter>
-      <Fragment>
-        <Navigation/>
-        <Route
-          exact
-          path={ROUTES.ORGANIZATION}
-          component={OrganizationSuspenseContainer}
-        />
-        <Route
-          exact
-          path={ROUTES.PROFILE}
-          component={ProfileSuspenseContainer}
-        />
-      </Fragment>
-    </BrowserRouter>
-  );
-};
+const App = () => (
+  <BrowserRouter>
+    <Fragment>
+      <Navigation/>
+      <Route
+        exact
+        path={ROUTES.ORGANIZATION}
+        component={OrganizationSuspenseContainer}
+      />
+      <Route
+        exact
+        path={ROUTES.PROFILE}
+        component={ProfileSuspenseContainer}
+      />
+    </Fragment>
+  </BrowserRouter>
+);
 
 export default App;
