@@ -1,6 +1,8 @@
 import React from 'react';
 import { Mutation } from 'react-apollo';
 
+import Issues from '../Issues';
+
 import {
   STAR_REPOSITORY,
   UNSTAR_REPOSITORY,
@@ -163,6 +165,7 @@ const Repository = ({
           </div>
         </div>
       </div>
+      <Issues repositoryOwner={owner.login} repositoryName={name}/>
     </div>
   );
 };
