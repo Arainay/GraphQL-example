@@ -53,17 +53,17 @@ const Repositories = ({ query, variables, entry }) => (
             {repositories.edges.map(({ node }) => (
               <Repository {...node} key={node.id}/>
             ))}
-            {<FetchMore
-                hasNextPage={repositories.pageInfo.hasNextPage}
-                fetchMore={fetchMore}
-                variables={{
-                  cursor: repositories.pageInfo.endCursor
-                }}
-                updateQuery={updateQuery(entry)}
-                loading={loading}
-              >
-                More Repositories
-              </FetchMore>}
+            <FetchMore
+              hasNextPage={repositories.pageInfo.hasNextPage}
+              fetchMore={fetchMore}
+              variables={{
+                cursor: repositories.pageInfo.endCursor
+              }}
+              updateQuery={updateQuery(entry)}
+              loading={loading}
+            >
+              More Repositories
+            </FetchMore>
           </div>
         </Fragment>
       );
