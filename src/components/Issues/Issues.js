@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Query } from 'react-apollo';
 
+import FetchMore from '../FetchMore';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
 import Issue from '../Issue';
@@ -11,6 +12,27 @@ import { GET_ISSUES_OF_REPOSITORY } from './operations/queries';
 import { ISSUE_STATES } from './constants';
 
 const isShow = issueState => issueState !== ISSUE_STATES.NONE;
+
+const updateQuery = (prevResult, { fetchMoreResult }) => {
+  if (!fetchMoreResult) {
+    return prevResult;
+  }
+
+  return {
+    ...prevResult,
+    repository: {
+      ...prevResult.repository,
+      issues: {
+        ...prevResult.repository.issues,
+        ...fetchMoreResult.repository.issues,
+        edges: [
+          ...prevResult.repository.issues.edges,
+          ...fetchMoreResult.repository.issues.edges
+        ]
+      }
+    }
+  };
+};
 
 const Issues = ({ repositoryOwner, repositoryName }) => {
   const [issueState, setIssueState] = useState(ISSUE_STATES.NONE);
@@ -27,7 +49,7 @@ const Issues = ({ repositoryOwner, repositoryName }) => {
           query={GET_ISSUES_OF_REPOSITORY}
           variables={{ repositoryOwner, repositoryName, issueState }}
         >
-          {({ data, loading, error }) => {
+          {({ data, loading, error, fetchMore }) => {
             if (error) {
               return <ErrorMessage message={error.message}/>
             }
@@ -47,6 +69,17 @@ const Issues = ({ repositoryOwner, repositoryName }) => {
                 {repository.issues.edges.map(({ node }) => (
                   <Issue {...node} key={node.id}/>
                 ))}
+                <FetchMore
+                  hasNextPage={repository.issues.pageInfo.hasNextPage}
+                  fetchMore={fetchMore}
+                  variables={{
+                    cursor: repository.issues.pageInfo.endCursor
+                  }}
+                  updateQuery={updateQuery}
+                  loading={loading}
+                >
+                  More Issues
+                </FetchMore>
               </div>
             );
           }}
